@@ -1,0 +1,5 @@
+libtoolize --force
+aclocal -I .
+autoconf
+automake --add-missing
+

@@ -1,0 +1,46 @@
+\hypertarget{group__WMPI}{
+\section{Basic WMPI functions}
+\label{group__WMPI}\index{Basic WMPI functions@{Basic WMPI functions}}
+}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+gint \hyperlink{group__WMPI_g7f4486d63f4ac8fe5c2a91a94678bdac}{wmpi\_\-initialize} (gint $\ast$argc, gchar $\ast$$\ast$$\ast$argv)
+\item 
+gint \hyperlink{group__WMPI_g65f9729b3ae505d12878ecdcdb616ec9}{wmpi\_\-logging\_\-init} (FILE $\ast$f, gchar $\ast$p, GLogLevelFlags log\_\-level, gpointer exit\_\-func)
+\end{CompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{group__WMPI_g7f4486d63f4ac8fe5c2a91a94678bdac}{
+\index{WMPI@{WMPI}!wmpi_initialize@{wmpi\_\-initialize}}
+\index{wmpi_initialize@{wmpi\_\-initialize}!WMPI@{WMPI}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}gint wmpi\_\-initialize (gint $\ast$ {\em argc}, gchar $\ast$$\ast$$\ast$ {\em argv})}}
+\label{group__WMPI_g7f4486d63f4ac8fe5c2a91a94678bdac}
+
+
+Initialization on parallel systems. If running on MPI, this calls MPI\_\-Init; on a serial run, the function does nothing. This function should be called before any other WMPI call.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em argc}]number of command line options \item[{\em argv}]\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]\end{Desc}
+\hypertarget{group__WMPI_g65f9729b3ae505d12878ecdcdb616ec9}{
+\index{WMPI@{WMPI}!wmpi_logging_init@{wmpi\_\-logging\_\-init}}
+\index{wmpi_logging_init@{wmpi\_\-logging\_\-init}!WMPI@{WMPI}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}gint wmpi\_\-logging\_\-init (FILE $\ast$ {\em f}, gchar $\ast$ {\em p}, GLogLevelFlags {\em log\_\-level}, gpointer {\em exit\_\-func})}}
+\label{group__WMPI_g65f9729b3ae505d12878ecdcdb616ec9}
+
+
+Initialize WMPI logging
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em f}]file stream for messages \item[{\em p}]string to prepend to messages \item[{\em log\_\-level}]maximum logging level to handle (see g\_\-log) \item[{\em exit\_\-func}]function to call if exiting on an error\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]0 on success \end{Desc}

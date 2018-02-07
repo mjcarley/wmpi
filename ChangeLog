@@ -1,0 +1,4 @@
+2007-06-25  Michael Carley  <ensmjc@enpc-adm34.bath.ac.uk>
+
+	* src/wmpi-config.in: Added support for C++ (mpiCC and CXX)
+

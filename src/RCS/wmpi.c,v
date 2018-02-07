@@ -1,0 +1,365 @@
+head	1.1;
+access;
+symbols;
+locks
+	ensmjc:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2006.08.23.14.00.25;	author ensmjc;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <glib.h>
+
+#include "wmpi.h"
+
+guint _wmpi_rank ;
+guint _wmpi_n_processes ;
+gboolean *_wmpi_log_status ;
+
+gint wmpi_initialize_serial(void) ;
+
+#ifdef WMPI_USE_MPI
+
+gint wmpi_initialize(gint *argc, gchar ***argv)
+
+{
+  gint i ;
+
+  g_assert(MPI_Init(argc, argv) == 0) ;
+  MPI_Comm_rank(MPI_COMM_WORLD, &i) ; _wmpi_rank = (guint)i ;
+  MPI_Comm_size(MPI_COMM_WORLD, &i) ; _wmpi_n_processes = (guint)i ;
+
+  _wmpi_log_status = (gboolean *)g_malloc(_wmpi_n_processes*sizeof(gboolean)) ;
+  for ( i = 1 ; i < (gint)_wmpi_n_processes ; i ++ )
+    wmpi_log_status_set((guint)i, FALSE) ;
+  _wmpi_log_status[0] = TRUE ;
+
+  g_log_set_handler(G_LOG_DOMAIN, 
+		    G_LOG_FLAG_RECURSION |
+		    G_LOG_FLAG_FATAL     |
+		    G_LOG_LEVEL_ERROR    |
+		    G_LOG_LEVEL_CRITICAL |
+		    G_LOG_LEVEL_WARNING  |
+		    G_LOG_LEVEL_MESSAGE  |
+		    G_LOG_LEVEL_INFO     |
+		    G_LOG_LEVEL_DEBUG,
+		    wmpi_log_func,
+		    NULL) ;
+
+  return 0 ;
+}
+
+gint wmpi_shutdown()
+
+{
+  MPI_Finalize() ;
+  return 0 ;
+}
+
+gint wmpi_sum_int(gint *a, gint *b, gint n)
+
+{
+  MPI_Reduce((gpointer)b, (gpointer)a, n, MPI_INT,
+	     MPI_SUM, 0, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_sum_double(gdouble *a, gdouble *b, gint n)
+
+{
+  MPI_Reduce((gpointer)b, (gpointer)a, n, MPI_DOUBLE,
+	     MPI_SUM, 0, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_sum_all_int(gint *a, gint *b, guint n)
+
+{
+  MPI_Allreduce((gpointer)b, (gpointer)a, (gint)n, MPI_INT,
+		MPI_SUM, MPI_COMM_WORLD) ;
+  return 0 ;
+}
+
+gint wmpi_sum_all_uint(guint *a, guint *b, guint n)
+
+{
+  MPI_Allreduce((gpointer)b, (gpointer)a, (gint)n, MPI_UNSIGNED,
+		MPI_SUM, MPI_COMM_WORLD) ;
+  return 0 ;
+}
+
+gint wmpi_sum_all_double(gdouble *a, gdouble *b, guint n)
+
+{
+  MPI_Allreduce((gpointer)b, (gpointer)a, (gint)n, MPI_DOUBLE,
+		MPI_SUM, MPI_COMM_WORLD) ;
+  return 0 ;
+}
+
+gint wmpi_pause()
+
+{
+  MPI_Barrier(MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_send_int(gint *i, guint n, gint tag, gint recv)
+
+{
+  MPI_Send(i, n, MPI_INT, recv, tag, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_recv_int(gint *i, guint n, gint tag, gint sender)
+
+{
+  MPI_Status status ;
+
+  MPI_Recv(i, n, MPI_INT, sender, tag, MPI_COMM_WORLD, &status) ;
+
+  return 0 ;
+}
+
+gint wmpi_send_uint(guint *i, guint n, gint tag, gint recv)
+
+{
+  MPI_Send(i, n, MPI_UNSIGNED, recv, tag, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_recv_uint(guint *i, guint n, gint tag, gint sender)
+
+{
+  MPI_Status status ;
+
+  MPI_Recv(i, n, MPI_UNSIGNED, sender, tag, MPI_COMM_WORLD, &status) ;
+
+  return 0 ;
+}
+
+gint wmpi_send_double(gdouble *i, gdouble n, gint tag, gint recv)
+
+{
+  MPI_Send(i, n, MPI_DOUBLE, recv, tag, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_recv_double(gdouble *i, gdouble n, gint tag, gint sender)
+
+{
+  MPI_Status status ;
+
+  MPI_Recv(i, n, MPI_DOUBLE, sender, tag, MPI_COMM_WORLD, &status) ;
+
+  return 0 ;
+}
+
+gint wmpi_broadcast_int(gint *data, gint n, gint proc)
+
+{
+  MPI_Bcast(data, n, MPI_INT, proc, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_broadcast_uint(guint *data, gint n, gint proc)
+
+{
+  MPI_Bcast(data, n, MPI_UNSIGNED, proc, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+gint wmpi_broadcast_double(gdouble *data, gint n, gint proc)
+
+{
+  MPI_Bcast(data, n, MPI_DOUBLE, proc, MPI_COMM_WORLD) ;
+
+  return 0 ;
+}
+
+#else /*WMPI_USE_MPI*/
+
+gint wmpi_initialize(gint *argc, gchar ***argv)
+
+{
+  _wmpi_rank = 0 ;
+  _wmpi_n_processes = 1 ;
+
+  _wmpi_log_status = (gboolean *)g_malloc(_wmpi_n_processes*sizeof(gboolean)) ;
+  *_wmpi_log_status = TRUE ;
+
+  g_log_set_handler(G_LOG_DOMAIN, 
+		    G_LOG_FLAG_RECURSION |
+		    G_LOG_FLAG_FATAL     |
+		    G_LOG_LEVEL_ERROR    |
+		    G_LOG_LEVEL_CRITICAL |
+		    G_LOG_LEVEL_WARNING  |
+		    G_LOG_LEVEL_MESSAGE  |
+		    G_LOG_LEVEL_INFO     |
+		    G_LOG_LEVEL_DEBUG,
+		    wmpi_log_func,
+		    NULL) ;
+
+  return 0 ;
+}
+
+gint wmpi_shutdown()
+
+{
+  return 0 ;
+}
+
+gint wmpi_sum_int(gint *a, gint *b, gint n)
+
+{
+  g_memmove(a,b,n*sizeof(gint)) ; return 0 ;
+}
+
+gint wmpi_sum_double(gdouble *a, gdouble *b, gint n)
+
+{
+  g_memmove(a,b,n*sizeof(gdouble)) ; return 0 ;
+}
+
+gint wmpi_sum_all_uint(guint *a, guint *b, guint n)
+
+{
+  g_memmove(a,b,n*sizeof(guint)) ; return 0 ;  
+}
+
+gint wmpi_sum_all_int(gint *a, gint *b, guint n)
+
+{
+  g_memmove(a,b,n*sizeof(gint)) ; return 0 ;  
+}
+
+gint wmpi_sum_all_double(gdouble *a, gdouble *b, guint n)
+
+{
+  g_memmove(a,b,n*sizeof(gdouble)) ; return 0 ;
+}
+
+gint wmpi_pause()
+
+{ return 0 ; }
+
+gint wmpi_broadcast_int(gint *data, gint n, gint proc)
+
+{ return 0 ; }
+
+gint wmpi_broadcast_uint(guint *data, gint n, gint proc)
+
+{ return 0 ; }
+
+gint wmpi_broadcast_double(gdouble *data, gint n, gint proc)
+
+{ return 0 ; }
+
+gint wmpi_send_double(gdouble *i, gdouble n, gint tag, gint recv)
+ 
+{ return 0 ; }
+
+gint wmpi_recv_double(gdouble *i, gdouble n, gint tag, gint sender)
+
+{ return 0 ; }
+
+gint wmpi_send_int(gint *i, guint n, gint tag, gint recv)
+
+{ return 0 ; }
+
+gint wmpi_recv_int(gint *i, guint n, gint tag, gint sender)
+
+{ return 0 ; }
+
+gint wmpi_send_uint(guint *i, guint n, gint tag, gint recv)
+
+{ return 0 ; }
+
+gint wmpi_recv_uint(guint *i, guint n, gint tag, gint sender)
+
+{ return 0 ; }
+
+#endif /*WMPI_USE_MPI*/
+
+/*These functions are the same in either case.*/
+
+gint wmpi_log_status_set(guint rank, gboolean status)
+
+{
+  g_assert(rank < _wmpi_n_processes) ;
+
+  _wmpi_log_status[rank] = status ;
+
+  return 0 ;
+}
+
+gboolean wmpi_log_status_check(guint rank)
+
+{
+  g_assert(rank < _wmpi_n_processes) ;
+
+  return (_wmpi_log_status[rank]) ;
+}
+
+guint wmpi_rank() 
+
+{
+  g_assert(_wmpi_n_processes != 0) ;
+  return _wmpi_rank ;
+}
+
+guint wmpi_n_processes() 
+
+{
+  g_assert(_wmpi_n_processes != 0) ;
+  return _wmpi_n_processes ;
+}
+
+gint wmpi_split_range(guint i, guint j, guint *pmin, guint *pmax)
+
+{
+  *pmin = (j-i)/_wmpi_n_processes*_wmpi_rank ;
+  if ( _wmpi_rank == _wmpi_n_processes - 1) *pmax = j-1 ;
+  else
+    *pmax = (j-i)/_wmpi_n_processes*(_wmpi_rank+1)-1 ;
+
+  return 0 ;
+}
+
+void wmpi_log_func(const gchar *log_domain,
+		  GLogLevelFlags log_level,
+		  const gchar *message,
+		  gpointer user_data)
+
+{
+  if ( _wmpi_log_status[wmpi_rank()] == FALSE ) return ;
+
+  fprintf(stderr, "%s: %s\n", log_domain, message) ;
+
+  return ;
+}
+@
