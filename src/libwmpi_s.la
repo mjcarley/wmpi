@@ -17,7 +17,7 @@ old_library='libwmpi_s.a'
 inherited_linker_flags=''
 
 # Libraries that this one depends upon.
-dependency_libs=' /usr/lib64/libglib-2.0.la -lpthread'
+dependency_libs=' -lglib-2.0'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''

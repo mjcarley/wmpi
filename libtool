@@ -1,6 +1,6 @@
 #! /bin/sh
 # Generated automatically by config.status (wmpi) 1.2
-# Libtool was configured on host aerialist-1:
+# Libtool was configured on host aerialist-1.bath.ac.uk:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
 # Provide generalized library-building support services.
@@ -282,7 +282,7 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/usr/lib64/gcc/x86_64-slackware-linux/5.4.0 /usr/lib64 /lib64 /usr/x86_64-slackware-linux/lib /lib /usr/lib "
+sys_lib_search_path_spec="/usr/lib64/gcc/x86_64-slackware-linux/8.2.0 /usr/lib64 /lib64 /lib /usr/lib "
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 /usr/local/lib64 /usr/x86_64-slackware-linux/lib64 /usr/lib64/seamonkey "
@@ -305,7 +305,7 @@ striplib="strip --strip-unneeded"
 
 
 # The linker used to build libraries.
-LD="/usr/x86_64-slackware-linux/bin/ld -m elf_x86_64"
+LD="/usr/bin/ld -m elf_x86_64"
 
 # How to create reloadable object files.
 reload_flag=" -r"
